@@ -15,8 +15,7 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "https://your-frontend-domain.com" // later
+                "https://dochub-ui.vercel.app"
         ));
         configuration.setAllowedMethods(List.of("GET","POST","DELETE","OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
