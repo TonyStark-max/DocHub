@@ -18,8 +18,8 @@ public class CorsConfig {
                 "http://localhost:5173",
                 "https://your-frontend-domain.com" // later
         ));
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
+        configuration.setAllowedMethods(List.of("GET","POST","DELETE","OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
