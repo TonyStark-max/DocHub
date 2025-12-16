@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,8 +22,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final UserDetails userDetails;
 
+    // Skip JWT validation for auth endpoints
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return request.getServletPath().startsWith("/auth/");
@@ -37,30 +36,31 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
+        // No token → continue filter chain
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7);
-        final String userEmail;
-        if(!jwtService.isTokenValid(jwt,userDetails)){
-            filterChain.doFilter(request,response);
-            return;
-        }
+        String jwt = authHeader.substring(7);
+        String username;
 
         try {
-            userEmail = jwtService.extractUsername(jwt);
+            username = jwtService.extractUsername(jwt);
 
-            if (userEmail != null &&
+            // Only authenticate if context is empty
+            if (username != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
 
+                // Load user from DB
                 UserDetails userDetails =
-                        userDetailsService.loadUserByUsername(userEmail);
+                        userDetailsService.loadUserByUsername(username);
 
+                // Validate token
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
@@ -69,17 +69,19 @@ public class JwtFilter extends OncePerRequestFilter {
                             );
 
                     authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
                     );
 
                     SecurityContextHolder.getContext()
                             .setAuthentication(authToken);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\":\"Invalid or expired token\"}");
             response.setContentType("application/json");
+            response.getWriter()
+                    .write("{\"error\":\"Invalid or expired token\"}");
             return;
         }
 
