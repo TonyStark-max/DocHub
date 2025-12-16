@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MinIOconfig {
 
+    @Value("${minio.url}")
+    private String url;
     @Value("${minio.access-key}")
     private String accessKey;
 
@@ -18,7 +20,7 @@ public class MinIOconfig {
     @Bean
     public MinioClient minioClient(){
         return MinioClient.builder()
-                .endpoint("http://localhost:9000")
+                .endpoint(url)
                 .credentials(accessKey,secretKey)
                 .build();
     }
