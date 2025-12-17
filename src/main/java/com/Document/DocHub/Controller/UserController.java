@@ -1,5 +1,6 @@
 package com.Document.DocHub.Controller;
 
+import com.Document.DocHub.DTO.AuthResponse;
 import com.Document.DocHub.DTO.Request;
 import com.Document.DocHub.Repositories.UserRepo;
 import com.Document.DocHub.Service.UserService;
@@ -26,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity <String> login(@RequestBody Request request){
+    public ResponseEntity <AuthResponse> login(@RequestBody Request request){
         return ResponseEntity.ok(
                 userService.loginUser(request.getEmail(), request.getPassword())
         );

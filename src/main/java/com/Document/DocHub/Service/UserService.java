@@ -1,5 +1,6 @@
 package com.Document.DocHub.Service;
 
+import com.Document.DocHub.DTO.AuthResponse;
 import com.Document.DocHub.DTO.Request;
 import com.Document.DocHub.Entity.Role;
 import com.Document.DocHub.Entity.User;
@@ -34,13 +35,14 @@ public class UserService {
         return "User Registered Successfully";
     }
 
-    public String loginUser(String email,String password){
+    public AuthResponse loginUser(String email, String password){
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email,password)
         );
         User user=userRepo.findByEmail(email)
                 .orElseThrow(()->new UsernameNotFoundException("User Not Found with email :"+email));
-        return jwtService.generateToken(user);
+        String token= jwtService.generateToken(user);
+        return new AuthResponse(token);
     }
 
     @Transactional
