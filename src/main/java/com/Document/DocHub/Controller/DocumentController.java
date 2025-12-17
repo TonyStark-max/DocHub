@@ -33,7 +33,7 @@ public class DocumentController {
     }
 
     @GetMapping("/uploadedBy/{fileName}")
-    public ResponseEntity<Map<String,String>> getuploadedBy(@PathVariable String fileName){
+    public ResponseEntity<Map<String,String>> getUploadedBy(@PathVariable String fileName){
         return ResponseEntity.ok(docService.getUploadedBy(fileName));
     }
 

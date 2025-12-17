@@ -6,6 +6,9 @@ import com.Document.DocHub.Entity.User;
 import com.Document.DocHub.Repositories.UserRepo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ public class UserService {
     private final UserRepo userRepo;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     public String registerUser(Request request){
         if(userRepo.existsByEmail(request.getEmail())){
             return "User Already Exists With Email"+request.getEmail();
@@ -30,13 +34,13 @@ public class UserService {
         return "User Registered Successfully";
     }
 
-    public String loginUser(String email,String password,Role role){
+    public String loginUser(String email,String password){
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email,password)
+        );
         User user=userRepo.findByEmail(email)
-                .orElseThrow(()->new UsernameNotFoundException("User Not Found with email : "+email));
-        if(!passwordEncoder.matches(password,user.getPassword())){
-            throw new RuntimeException("Invalid Credentials");
-        }
-        return jwtService.generateToken(email,role);
+                .orElseThrow(()->new UsernameNotFoundException("User Not Found with email :"+email));
+        return jwtService.generateToken(user);
     }
 
     @Transactional

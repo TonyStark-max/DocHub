@@ -1,5 +1,6 @@
 package com.Document.DocHub.Config;
 
+import com.Document.DocHub.Service.CustomUserDetailsService;
 import com.Document.DocHub.Service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,13 +22,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
-
-    // Skip JWT validation for auth endpoints
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().startsWith("/auth/");
-    }
+    private final CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -36,19 +31,17 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader("Authorization");
 
-        // No token → continue filter chain
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwt = authHeader.substring(7);
-        String username;
+        String JWTtoken = authHeader.substring(7);
+        String username=jwtService.extractUsername(JWTtoken);
 
         try {
-            username = jwtService.extractUsername(jwt);
 
             // Only authenticate if context is empty
             if (username != null &&
@@ -59,21 +52,19 @@ public class JwtFilter extends OncePerRequestFilter {
                         userDetailsService.loadUserByUsername(username);
 
                 // Validate token
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-
+                if(jwtService.isTokenValid(JWTtoken,userDetails)){
+                    UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
                     authToken.setDetails(
                             new WebAuthenticationDetailsSource()
                                     .buildDetails(request)
                     );
-
-                    SecurityContextHolder.getContext()
+                    //Set Authenticated USer as Authorized Uer
+                    SecurityContextHolder
+                            .getContext()
                             .setAuthentication(authToken);
                 }
             }

@@ -26,17 +26,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String,String>> login(@RequestBody Request request){
-        try {
-            String token = userService.loginUser(request.getEmail(), request.getPassword(),request.getRole());
-            Map<String, String> response = new HashMap<>();
-            response.put("token", token);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String,String> error=new HashMap<>();
-            error.put("error",e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-        }
+    public ResponseEntity <String> login(@RequestBody Request request){
+        return ResponseEntity.ok(
+                userService.loginUser(request.getEmail(), request.getPassword())
+        );
     }
     @DeleteMapping("/deleteUser/{name}")
     @PreAuthorize("hasAuthorize('ADMIN')")
