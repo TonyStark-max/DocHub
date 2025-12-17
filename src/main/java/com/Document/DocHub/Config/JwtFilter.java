@@ -30,52 +30,50 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-
-        final String authHeader = request.getHeader("Authorization");
-
+        String path = request.getServletPath();
+        if (path.startsWith("/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-
+        String username;
         String JWTtoken = authHeader.substring(7);
-        String username=jwtService.extractUsername(JWTtoken);
 
         try {
-
-            // Only authenticate if context is empty
-            if (username != null &&
-                    SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                // Load user from DB
-                UserDetails userDetails =
-                        userDetailsService.loadUserByUsername(username);
-
-                // Validate token
-                if(jwtService.isTokenValid(JWTtoken,userDetails)){
-                    UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource()
-                                    .buildDetails(request)
-                    );
-                    //Set Authenticated USer as Authorized Uer
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(authToken);
-                }
-            }
+            username = jwtService.extractUsername(JWTtoken);
         } catch (Exception ex) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter()
-                    .write("{\"error\":\"Invalid or expired token\"}");
+            filterChain.doFilter(request, response);
             return;
         }
+        if (username != null &&
+                SecurityContextHolder.getContext().getAuthentication() == null) {
 
+            UserDetails userDetails =
+                    userDetailsService.loadUserByUsername(username);
+
+            if (jwtService.isTokenValid(JWTtoken, userDetails)) {
+
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource()
+                                .buildDetails(request)
+                );
+
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(authToken);
+            }
+        }
         filterChain.doFilter(request, response);
     }
 }
