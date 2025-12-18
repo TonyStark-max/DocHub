@@ -16,7 +16,6 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "https://dochub-userintetrface-aseu9bcln-somus-projects-a00135d1.vercel.app",
-                "https://dochub-userintetrface-j3y8ozhua-somus-projects-a00135d1.vercel.app",
                 "https://dochub-userinterface.vercel.app"
         ));
         configuration.setAllowedMethods(List.of("GET","POST","DELETE","OPTIONS"));
