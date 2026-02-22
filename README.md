@@ -6,11 +6,18 @@ This project focuses on secure API design, authentication architecture, and scal
 🚀 Core Features
 
 Role-Based Access Control (Admin, Team Lead, Employee)
+
 JWT-based Stateless Authentication
+
 Secure File Upload & Retrieval using MinIO (Object Storage)
+
 Team-level file visibility restrictions
+
 Protected RESTful APIs with filter-based security
+
 Swagger-based API documentation
+
+
 
 🏗 Architecture Overview
 
@@ -27,26 +34,39 @@ File access is granted or denied based on role and team mapping.
 🛠 Tech Stack
 
 Backend:
+
 Java 21
+
 Spring Boot
+
 Spring Security
+
 JPA / Hibernate
 
 Security:
+
 JWT Authentication
+
 BCrypt Password Encoding
+
 Role-Based Access Control (RBAC)
 
 Database & Storage:
+
 PostgreSQL / MySQL
+
 MinIO (Object Storage)
 
 Tools:
+
 Maven
+
 Postman
+
 Swagger (OpenAPI)
 
 📂 Project Structure
+
 
 
 com.dochub
@@ -58,14 +78,21 @@ com.dochub
  ├── dto
  └── config
 
+ 
+
+
 The application follows clean separation of concerns and layered architecture principles.
+
 
 🔐 Role Hierarchy
 
 
 Role	      Permissions
+
 Admin	      Manage teams, users, full document access
+
 Team Lead   Upload and share files within team
+
 Employee	  Upload files, view team-specific documents
 
 
@@ -73,6 +100,9 @@ Employee	  Upload files, view team-specific documents
 
 
 Tested 200+ file upload/download operations
+
 Secured 10+ protected endpoints
+
 Implemented stateless authentication (0 server-side sessions)
+
 Validated API responses using Postman collection
