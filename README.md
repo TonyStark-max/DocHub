@@ -47,6 +47,8 @@ Postman
 Swagger (OpenAPI)
 
 📂 Project Structure
+
+
 com.dochub
  ├── controller
  ├── service
@@ -59,6 +61,8 @@ com.dochub
 The application follows clean separation of concerns and layered architecture principles.
 
 🔐 Role Hierarchy
+
+
 Role	      Permissions
 Admin	      Manage teams, users, full document access
 Team Lead   Upload and share files within team
@@ -66,6 +70,8 @@ Employee	  Upload files, view team-specific documents
 
 
 📈 Performance & Validation
+
+
 Tested 200+ file upload/download operations
 Secured 10+ protected endpoints
 Implemented stateless authentication (0 server-side sessions)
