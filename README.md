@@ -1,105 +1,211 @@
-Overview
+# DocHub — Secure Media Storage Platform
 
-DocHub is a secure backend system designed to manage team-based document sharing with strict role-based access control. The system enables structured collaboration between Admins, Team Leads, and Employees while enforcing controlled file visibility and secure storage using object storage.
-This project focuses on secure API design, authentication architecture, and scalable backend workflows using Spring Boot.
+---
 
-🚀 Core Features
+## Overview
 
-Role-Based Access Control (Admin, Team Lead, Employee)
+DocHub is a secure full-stack media storage platform built using Spring Boot, MySQL, and MinIO Object Storage.
 
-JWT-based Stateless Authentication
+The application is designed to solve the limitations of storing large media files directly inside relational databases using BLOB storage. Instead of storing images and videos inside the database, the system separates:
 
-Secure File Upload & Retrieval using MinIO (Object Storage)
+* File metadata → stored in MySQL
+* Media objects → stored in MinIO Object Storage
 
-Team-level file visibility restrictions
+This architecture improves scalability, reduces database overhead, and provides better handling for large media content.
 
-Protected RESTful APIs with filter-based security
+---
 
-Swagger-based API documentation
+# Problem Statement
 
+Traditional applications often store images and videos directly inside relational databases using BLOB columns. While possible, this approach introduces several architectural problems:
 
+* Increased database size
+* Slower query performance
+* Heavy backup operations
+* Inefficient handling of binary data
+* Poor scalability for large media content
 
-🏗 Architecture Overview
+DocHub addresses this problem using object storage architecture by integrating MinIO for storing media files while maintaining metadata separately in MySQL.
 
-DocHub follows a layered architecture:
-Controller → Service → Repository → Database
-Authentication Filter → JWT Validation → Security Context
+---
 
-Security Flow:
-User logs in via JWT authentication endpoint.
-Token is validated using Spring Security filter.
-Role-based authorization is applied at endpoint level.
-File access is granted or denied based on role and team mapping.
+# System Architecture
 
-🛠 Tech Stack
+```text
+Frontend Client
+       │
+       ▼
+Spring Boot REST APIs
+       │
+ ┌────────────────────┐
+ │  Spring Security   │
+ │   JWT Validation   │
+ └────────────────────┘
+       │
+ ┌────────────────────┐       ┌────────────────────┐
+ │       MySQL        │       │       MinIO        │
+ │   Metadata Store   │       │   Object Storage   │
+ └────────────────────┘       └────────────────────┘
+```
 
-Backend:
-![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-0db7ed?style=for-the-badge&logo=docker&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+---
 
-Security:
+# Features
 
-JWT Authentication
+* Secure image and video upload
+* File retrieval using protected APIs
+* Object storage integration using MinIO
+* Metadata management using MySQL
+* JWT-based stateless authentication
+* Role-Based Access Control (RBAC)
+* Protected REST APIs using Spring Security filters
+* Swagger/OpenAPI documentation
+* Layered backend architecture
+* Secure file access based on authentication and authorization
 
-BCrypt Password Encoding
+---
 
-Role-Based Access Control (RBAC)
+# Tech Stack
 
-Database & Storage:
+## Backend
 
-PostgreSQL / MySQL
+## Database & Storage
 
-MinIO (Object Storage)
+## Security
 
-Tools:
+## Tools
 
-Maven
+---
 
-Postman
+# Security Flow
 
-Swagger (OpenAPI)
+1. User logs in using credentials
+2. JWT token is generated after successful authentication
+3. Token is sent in request headers
+4. Spring Security filter validates the token
+5. Security context is established
+6. Protected endpoints are accessed based on user roles
 
-📂 Project Structure
+---
 
+# Storage Design
 
+The application follows a hybrid storage architecture.
 
+| Data Type       | Storage Location |
+| --------------- | ---------------- |
+| File Metadata   | MySQL            |
+| Images & Videos | MinIO            |
+
+## Metadata Stored in MySQL
+
+* File name
+* File type
+* Upload timestamp
+* User ownership
+* Object reference key
+
+## Media Files Stored in MinIO
+
+* Images
+* Videos
+* Binary media objects
+
+This separation improves storage efficiency and reduces database load.
+
+---
+
+# Project Structure
+
+```text
 com.dochub
- ├── controller
- ├── service
- ├── repository
- ├── security
- ├── model
- ├── dto
- └── config
+│
+├── controller
+├── service
+├── repository
+├── security
+├── config
+├── model
+├── dto
+└── exception
+```
 
- 
+The project follows layered architecture and separation of concerns for better maintainability and scalability.
 
+---
 
-The application follows clean separation of concerns and layered architecture principles.
+# API Documentation
 
+Swagger/OpenAPI is integrated for testing and exploring APIs.
 
-🔐 Role Hierarchy
+## Example Endpoints
 
+| Method | Endpoint      | Description          |
+| ------ | ------------- | -------------------- |
+| POST   | /auth/login   | User authentication  |
+| POST   | /files/upload | Upload media file    |
+| GET    | /files/{id}   | Retrieve media file  |
+| DELETE | /files/{id}   | Delete file          |
+| GET    | /files/user   | Fetch uploaded files |
 
-Role	      Permissions
+---
 
-Admin	      Manage teams, users, full document access
+# Performance & Validation
 
-Team Lead   Upload and share files within team
+* Tested secure upload and download workflows
+* Protected multiple REST endpoints using JWT filters
+* Implemented stateless authentication with zero server-side sessions
+* Validated APIs using Postman collections
+* Successfully handled authenticated concurrent requests
 
-Employee	  Upload files, view team-specific documents
+---
 
+# Why MinIO Instead of BLOB Storage
 
-📈 Performance & Validation
+MinIO was chosen because object storage systems are better suited for handling large binary media content compared to relational databases.
 
+## Advantages
 
-Tested 200+ file upload/download operations
+* Better scalability
+* Reduced database overhead
+* Faster media handling
+* Easier storage management
+* Separation of structured and unstructured data
+* Cloud-compatible object storage architecture
 
-Secured 10+ protected endpoints
+---
 
-Implemented stateless authentication (0 server-side sessions)
+# Future Improvements
 
-Validated API responses using Postman collection
+* Presigned URL support
+* File sharing between users
+* Redis caching
+* Distributed storage deployment
+* CDN integration
+* Kubernetes deployment
+* File compression & optimization
+* Audit logging system
+
+---
+
+# Running Locally
+
+```bash
+git clone <repository-url>
+
+cd dochub
+
+docker-compose up
+```
+
+---
+
+# Author
+
+Developed as a backend-focused project to explore:
+
+* Object Storage Architecture
+* Secure REST API Design
+* JWT Authentication
+* Scalable Media Storage Systems
+* Spring Security Integration
