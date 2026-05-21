@@ -203,9 +203,6 @@ MinIO was chosen because object storage systems are better suited for handling l
 * Presigned URL support
 * File sharing between users
 * Redis caching
-* Distributed storage deployment
-* CDN integration
-* Kubernetes deployment
 * File compression & optimization
 * Audit logging system
 
